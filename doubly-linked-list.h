@@ -16,7 +16,7 @@ private:
 
     // The node structure used for the DoublyLinkedList.
     struct Node {
-        Node(DataType value);
+        explicit Node(DataType value);
         DataType value;
         Node* next;
         Node* prev;
