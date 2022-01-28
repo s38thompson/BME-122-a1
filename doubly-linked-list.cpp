@@ -60,7 +60,7 @@ bool DoublyLinkedList::empty() const
 
 bool DoublyLinkedList::full() const
 {
-    if (size_ == capacity()) // if the size is equal to capacity no more elements can be added therefore the list is full
+    if (size_ == capacity()) // if the size is equal to capacity no more elements can be added
     {
         return true;
     }
@@ -72,37 +72,43 @@ bool DoublyLinkedList::full() const
 
 DoublyLinkedList::DataType DoublyLinkedList::select(unsigned int index) const
 {
-    Node *cur = head_; // start with head as current node
-    if (index >= size_ || index < 0) // if index of element is not in scope of list then invalid
+    Node* cur = head_;
+    // if index of element is not in scope of list then invalid
+    if (index >= size_ || index < 0)
     {
-        for (int i = 0; i <= size_; i++) // iterate through list
-        {
-            cur = cur->next;
-        }
-        return cur->value;// return last element of list
+        Node* tmp = tail_;
+        return tmp->value;// return last element of the list
     }
-    else if ( size_ == 0) // empty list
+
+    // if list is empty
+    if (head_ == nullptr)
     {
-        return 0;
+        return (DataType)-999;
     }
+
+    // general case
     else
     {
-        for (int i = 0; i <= size_ ; i++)
+        for (int i = 0; i < size_ ; i++)
         {
             if (i == index)
             {
-                return (cur->value); // return value at current
+                return (cur->value); // return value at current index
             }
             cur = cur->next;
         }
     }
+
 }
 unsigned int DoublyLinkedList::search(DataType value) const
 {
     Node* cur = head_;
     int position = 0;
+
+    // iterate through list
     while (cur != nullptr)
     {
+        //when value of current node equal value given
         if (cur->value == value)
         {
             return position;
@@ -110,7 +116,7 @@ unsigned int DoublyLinkedList::search(DataType value) const
         position++;
         cur = cur->next;
     }
-    return size_;
+    return size_; // if value not in list, return size of list
 }
 
 void DoublyLinkedList::print() const
@@ -144,6 +150,7 @@ bool DoublyLinkedList::insert(DataType value, unsigned int index)
     {
         // head is new node
         head_ = node;
+        size_++;
         return true;
     }
 
@@ -153,25 +160,32 @@ bool DoublyLinkedList::insert(DataType value, unsigned int index)
         node->next = head_;
         head_->prev = node;
         head_ = node;
+        size_++;
+        return true;
+    }
+    if (size_ == index)
+    {
+        insert_back(value);
         return true;
     }
     else
     {
         // iterate through list until reach one node after index
-        for(int i = 0; i <= index + 1; i++)
+        for (int i = 0; i <= index - 1; i++)
         {
-            if ( i == index + 1)
+            if ( i == index - 1)
             {
-                node->prev = cur->prev;
-                node->next = cur;
-                cur->prev->next = node;
-                cur->prev = node;
+                node->next = cur->next;
+                cur->next = node;
+                node->prev = cur;
+                node->next->prev = node;
+                size_++;
+                return true;
             }
             cur = cur->next;
         }
-       return true;
     }
-
+    return false;
 }
 
 bool DoublyLinkedList::insert_front(DataType value)
@@ -189,6 +203,8 @@ bool DoublyLinkedList::insert_front(DataType value)
     if (head_ == nullptr)
     {
         head_ = node;
+        tail_ = node;
+        size_++;
         return true;
     }
 
@@ -196,6 +212,7 @@ bool DoublyLinkedList::insert_front(DataType value)
     node->next = head_;
     head_->prev = node;
     head_ = node;
+    size_++;
     return true;
 }
 
@@ -209,24 +226,22 @@ bool DoublyLinkedList::insert_back(DataType value)
     else
     {
         Node* node = new Node(value);
-        Node* cur = head_;
 
         // insert node to empty list
         if (head_ == nullptr)
         {
             head_ = node;
+            tail_ = node;
+            size_++;
             return true;
         }
         else
         {
-            // iterate through list until reach end
-            for (int i = 0; i < size_; i++)
-            {
-                cur = cur->next;
-            }
             // add new node to the end
-            cur->next = node;
-            node->prev = cur;
+            node->prev = tail_;
+            tail_->next = node;
+            tail_ = node;
+            size_++;
             return true;
         }
     }
@@ -237,7 +252,6 @@ bool DoublyLinkedList::remove(unsigned int index)
     if (size_ > 0 && index < size_)
     {
         Node* cur = head_;
-        Node* prev;
         int position = 0;
 
         // if head is index
@@ -245,6 +259,7 @@ bool DoublyLinkedList::remove(unsigned int index)
         {
             head_ = cur-> next;
             delete cur;
+            size_--;
             return true;
         }
         // iterate though list
@@ -256,21 +271,26 @@ bool DoublyLinkedList::remove(unsigned int index)
                 // if index is tail
                 if (cur->next == nullptr)
                 {
-                    tail_ = prev;
-                    prev->next = nullptr;
+                    tail_ = cur->prev;
+                    cur = nullptr;
                     delete cur;
+                    size_--;
                     return true;
                 }
                 // general cases
+                Node* prev = cur->prev;
                 prev->next = cur->next; // previous node points to the next node
+                prev = cur->next;
+                prev->prev = cur->prev;
                 delete cur;
+                size_--;
                 return true;
             }
             position++;
             cur = cur->next;
         }
     }
-    return false;
+    return true;
 }
 
 bool DoublyLinkedList::remove_front()
@@ -279,14 +299,15 @@ bool DoublyLinkedList::remove_front()
     if (size_ > 0)
     {
         Node* cur = head_;
-        Node* next;
 
         // list is one element long
         if (size_ == 1)
         {
-            head_ = cur->next;
-            next->prev = cur->prev;
+            tail_ = nullptr;
+            head_ = nullptr;
+            cur = nullptr;
             delete cur;
+            size_--;
             return true;
         }
 
@@ -295,6 +316,7 @@ bool DoublyLinkedList::remove_front()
         {
             head_ = cur-> next;
             delete cur;
+            size_--;
             return true;
         }
     }
@@ -309,48 +331,66 @@ bool DoublyLinkedList::remove_back()
         return false;
     }
     Node* cur = head_;
-    Node* next;
-    Node* prev;
 
     // list is one element long
     if (size_ == 1)
     {
-        head_ = cur->next;
-        next->prev = cur->prev;
+        head_ = nullptr;
+        tail_ = nullptr;
+        cur = nullptr;
         delete cur;
+        size_--;
         return true;
     }
 
    // general case
     while (cur->next != nullptr)
     {
+        if (cur->next == nullptr)
+        {
+            tail_ = cur->prev;
+            cur = nullptr;
+            delete cur;
+            size_--;
+            return true;
+        }
         cur = cur->next;
     }
-    tail_ = prev;
-    prev->next = nullptr;
-    delete cur;
     return true;
 }
 
 bool DoublyLinkedList::replace(unsigned int index, DataType value)
 {
     Node* cur = head_;
-    while (cur->next != nullptr)
-    {
-        // loop through each element of list
-        for (int i = 0; i < size_ ; i++)
-        {
-            // stop when find given index
-            if (i == index)
-            {
-                // insert given value at said index
-                cur->value = value;
-                return true;
-            }
-        }
-        // change cur pointer to next node
-        cur = cur->next;
-    }
-    return false;
-}
 
+    if (index >= size_)
+    {
+        return false;
+    }
+
+    else if (size_ == 0)
+    {
+        return false;
+    }
+
+   else
+    {
+        while (cur->next != nullptr)
+        {
+            // loop through each element of list
+            for (int i = 0; i <= index; i++)
+            {
+                // stop when find given index
+                if (i == index)
+                {
+                    // insert given value at said index
+                    cur->value = value;
+                    return true;
+                }
+            }
+            // change cur pointer to next node
+            cur = cur->next;
+        }
+
+    }
+}
