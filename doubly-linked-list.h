@@ -50,7 +50,7 @@ public:
     // Returns the number of elements in the list.
     unsigned int size() const;
     // Returns the maximum number of elements the list can hold.
-    unsigned int capacity() const;
+    static unsigned int capacity() ;
     // Returns true if the list is empty, false otherwise.
     bool empty() const;
     // Returns true if the list is at capacity, false otherwise.

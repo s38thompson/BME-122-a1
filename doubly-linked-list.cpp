@@ -41,7 +41,7 @@ unsigned int DoublyLinkedList::size() const
     return size_;
 }
 
-unsigned int DoublyLinkedList::capacity() const
+unsigned int DoublyLinkedList::capacity()
 {
     return CAPACITY;
 }
@@ -97,6 +97,7 @@ DoublyLinkedList::DataType DoublyLinkedList::select(unsigned int index) const
             }
             cur = cur->next;
         }
+        return false;
     }
 
 }
@@ -129,10 +130,10 @@ void DoublyLinkedList::print() const
     }
 
 }
-DoublyLinkedList::Node* DoublyLinkedList::getNode(unsigned int index) const
+/*DoublyLinkedList::Node* DoublyLinkedList::getNode(unsigned int index) const
 {
 
-}
+}*/
 
 bool DoublyLinkedList::insert(DataType value, unsigned int index)
 {
@@ -249,48 +250,72 @@ bool DoublyLinkedList::insert_back(DataType value)
 
 bool DoublyLinkedList::remove(unsigned int index)
 {
-    if (size_ > 0 && index < size_)
-    {
-        Node* cur = head_;
-        int position = 0;
+    Node* cur = head_;
+    if (size_ <= 0 || index >= size_)
+        return false;
 
+    else
+    {
         // if head is index
-        if ( position == index)
+        if (index == 0)
         {
-            head_ = cur-> next;
-            delete cur;
-            size_--;
-            return true;
-        }
-        // iterate though list
-        while (cur != nullptr)
-        {
-            // find when position equals index
-            if (position == index)
+            // if size is 1 element long
+            if (size_ == 1)
             {
-                // if index is tail
-                if (cur->next == nullptr)
-                {
-                    tail_ = cur->prev;
-                    cur = nullptr;
-                    delete cur;
-                    size_--;
-                    return true;
-                }
-                // general cases
-                Node* prev = cur->prev;
-                prev->next = cur->next; // previous node points to the next node
-                prev = cur->next;
-                prev->prev = cur->prev;
+                head_ = nullptr;
+                tail_ = nullptr;
+                cur = nullptr;
                 delete cur;
                 size_--;
                 return true;
             }
-            position++;
-            cur = cur->next;
+            // if list is more than 1 element long
+            else
+            {
+                head_ = cur->next;
+                cur = nullptr;
+                delete cur;
+                size_--;
+                return true;
+            }
+        }
+        else
+        {
+            // iterate though list
+            int position = 0;
+            while (cur != nullptr)
+            {
+                // find when position equals index
+                if (position == index)
+                {
+                    // if index is tail
+                    if (cur->next == nullptr)
+                    {
+
+                        tail_ = cur->prev;
+                        cur = nullptr;
+                        delete cur;
+                        size_--;
+                    }
+
+                    // general cases
+                    else
+                    {
+                        Node *prev = cur->prev;
+                        prev->next = cur->next; // previous node points to the next node
+                        prev = cur->next;
+                        prev->prev = cur->prev;
+                        cur = nullptr;
+                        delete cur;
+                        size_--;
+                    }
+                    return true;
+                }
+                position++;
+            }
+            return false;
         }
     }
-    return true;
 }
 
 bool DoublyLinkedList::remove_front()
@@ -315,6 +340,7 @@ bool DoublyLinkedList::remove_front()
         while (cur == head_)
         {
             head_ = cur-> next;
+            cur = nullptr;
             delete cur;
             size_--;
             return true;
@@ -363,34 +389,20 @@ bool DoublyLinkedList::replace(unsigned int index, DataType value)
 {
     Node* cur = head_;
 
-    if (index >= size_)
+    if (index < size_ && size_ > 0 && size_ < capacity())
     {
-        return false;
-    }
-
-    else if (size_ == 0)
-    {
-        return false;
-    }
-
-   else
-    {
-        while (cur->next != nullptr)
+        int position = 0;
+        while (cur != nullptr)
         {
-            // loop through each element of list
-            for (int i = 0; i <= index; i++)
+            if (position == index)
             {
-                // stop when find given index
-                if (i == index)
-                {
-                    // insert given value at said index
-                    cur->value = value;
-                    return true;
-                }
+                cur->value = value;
+                return true;
             }
-            // change cur pointer to next node
             cur = cur->next;
+            position++;
         }
 
     }
+    return false;
 }

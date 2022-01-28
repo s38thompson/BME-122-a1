@@ -375,11 +375,11 @@ public:
         const int num_elems = 4;
         for (int i = 0; i < num_elems; i++)
         {
-            ASSERT_TRUE(list.insert_back(i))
+           ASSERT_TRUE(list.insert_back(i))
         }
         for (int i = 0; i < num_elems; i++)
         {
-            ASSERT_TRUE(list.remove_back())
+           ASSERT_TRUE(list.remove_back())
         }
 
         // Try a bunch of invalid commands.
